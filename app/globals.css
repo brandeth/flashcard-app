@@ -8,6 +8,20 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-brand-yellow-500: #f8cb46;
+
+  --color-brand-blue-400: #92adeb;
+  --color-brand-blue-600: #5072c7;
+
+  --color-brand-teal-400: #47d9c9;
+
+  --color-brand-pink-400: #fc8ae5;
+  --color-brand-pink-500: #f073a3;
+  --color-brand-pink-700: #e11966;
+
+  --color-brand-neutral-900: #080b2f;
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
