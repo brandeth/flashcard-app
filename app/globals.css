@@ -22,8 +22,7 @@
 
   --color-brand-neutral-900: #080b2f;
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-poppins);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -33,8 +32,78 @@
   }
 }
 
+@layer utilities {
+  .text-preset-1 {
+    font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+    font-size: 1.5rem;
+    line-height: 1.2;
+    letter-spacing: 0;
+    font-weight: 700;
+  }
+
+  .text-preset-2 {
+    font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+    font-size: 1.5rem;
+    line-height: 1.2;
+    letter-spacing: 0;
+    font-weight: 600;
+  }
+
+  .text-preset-3 {
+    font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    letter-spacing: 0;
+    font-weight: 600;
+  }
+
+  .text-preset-4 {
+    font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    line-height: 1.2;
+    letter-spacing: 0;
+    font-weight: 600;
+  }
+
+  .text-preset-5 {
+    font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+
+  .text-preset-5-regular {
+    font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+
+  .text-preset-6 {
+    font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    letter-spacing: -0.03em;
+    font-weight: 500;
+  }
+
+  @media (min-width: 768px) {
+    .text-preset-1 {
+      font-size: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .text-preset-1 {
+      font-size: 2.5rem;
+    }
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
 }
