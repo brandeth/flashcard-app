@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonVariant = "primary" | "secondary";
+type ButtonVariant = "primary" | "secondary" | "outline";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
@@ -17,17 +17,19 @@ export function Button({
   type = "button",
   ...props
 }: ButtonProps) {
-  const buttonStateClasses =
+  const raisedButtonStateClasses =
     "shadow-[inset_0_0_0_1px_var(--color-brand-neutral-900),2px_2px_0_0_var(--color-brand-neutral-900)] hover:not-disabled:shadow-[inset_0_0_0_1px_var(--color-brand-neutral-900),4px_4px_0_0_var(--color-brand-neutral-900)] focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_1px_var(--color-brand-neutral-900),3px_3px_0_0_var(--color-brand-blue-600)]";
+  const outlineButtonStateClasses =
+    "border border-brand-neutral-900 bg-brand-neutral-0 text-brand-neutral-900 shadow-none hover:bg-brand-neutral-100 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-600";
 
   const variantClasses = {
-    primary: "bg-brand-yellow-500 text-brand-neutral-900",
-    secondary: "bg-brand-neutral-0 text-brand-neutral-900",
+    primary: `border-0 bg-brand-yellow-500 text-brand-neutral-900 ${raisedButtonStateClasses}`,
+    secondary: `border-0 bg-brand-neutral-0 text-brand-neutral-900 ${raisedButtonStateClasses}`,
+    outline: outlineButtonStateClasses,
   } satisfies Record<ButtonVariant, string>;
 
   const classes = [
-    "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border-0 px-4 py-3 text-preset-4 leading-none transition-shadow duration-150 ease-in-out disabled:cursor-not-allowed disabled:opacity-50",
-    buttonStateClasses,
+    "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-3 text-preset-4 leading-none transition-[box-shadow,outline-color] duration-150 ease-in-out disabled:cursor-not-allowed disabled:opacity-50",
     variantClasses[variant],
     className,
   ]

@@ -40,6 +40,10 @@ export default function Home() {
           <Button variant="secondary" iconLeft={<PlusIcon />}>
             Import Cards
           </Button>
+
+          <Button variant="outline" iconRight={<PlusIcon />}>
+            Export Deck
+          </Button>
         </div>
       </section>
     </main>
