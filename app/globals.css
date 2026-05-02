@@ -20,7 +20,10 @@
   --color-brand-pink-500: #f073a3;
   --color-brand-pink-700: #e11966;
 
-  --color-brand-neutral-900: #080b2f;
+  --color-brand-neutral-0: #ffffff;
+  --color-brand-neutral-100: #f7f3f0;
+  --color-brand-neutral-600: #6d5b4d;
+  --color-brand-neutral-900: #2e1401;
 
   --font-sans: var(--font-poppins);
 }

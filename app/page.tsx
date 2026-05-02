@@ -36,6 +36,10 @@ export default function Home() {
           <Button disabled iconLeft={<PlusIcon />}>
             Disabled
           </Button>
+
+          <Button variant="secondary" iconLeft={<PlusIcon />}>
+            Import Cards
+          </Button>
         </div>
       </section>
     </main>
