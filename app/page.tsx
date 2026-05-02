@@ -1,4 +1,5 @@
 import { Button } from "./components/Button";
+import { Checkbox } from "./components/Checkbox";
 
 function PlusIcon() {
   return (
@@ -44,6 +45,17 @@ export default function Home() {
           <Button variant="outline" iconRight={<PlusIcon />}>
             Export Deck
           </Button>
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          <Checkbox name="rememberDeck" label="Remember this deck" />
+
+          <Checkbox name="shuffleCards" label="Shuffle cards" defaultChecked />
+
+          <Checkbox
+            name="checkboxOnly"
+            aria-label="Checkbox without visible label"
+          />
         </div>
       </section>
     </main>
