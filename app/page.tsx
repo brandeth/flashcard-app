@@ -1,5 +1,6 @@
 import { Button } from "./components/Button";
 import { Checkbox } from "./components/Checkbox";
+import { ProgressBar } from "./components/ProgressBar";
 
 function PlusIcon() {
   return (
@@ -56,6 +57,16 @@ export default function Home() {
             name="checkboxOnly"
             aria-label="Checkbox without visible label"
           />
+        </div>
+
+        <div className="mt-8 flex flex-col gap-4">
+          {[0, 20, 40, 60, 80].map((value) => (
+            <ProgressBar
+              key={value}
+              label={`Deck mastery ${value}%`}
+              value={value}
+            />
+          ))}
         </div>
       </section>
     </main>
