@@ -48,6 +48,14 @@ export default function Home() {
           <Button variant="outline" iconRight={<PlusIcon />}>
             Export Deck
           </Button>
+
+          <Button variant="base-primary" iconLeft={<PlusIcon />}>
+            Study Mode
+          </Button>
+
+          <Button variant="base-secondary" iconRight={<PlusIcon />}>
+            All Cards
+          </Button>
         </div>
 
         <div className="mt-6 flex gap-3">
