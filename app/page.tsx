@@ -2,6 +2,7 @@ import { Button } from "./components/Button";
 import { Checkbox } from "./components/Checkbox";
 import { Input } from "./components/Input";
 import { ProgressBar } from "./components/ProgressBar";
+import { TextArea } from "./components/TextArea";
 
 function PlusIcon() {
   return (
@@ -72,6 +73,19 @@ export default function Home() {
             name="questionWithError"
             placeholder="e.g., What is the capital of France?"
             validationMessage="Please enter a question."
+          />
+
+          <TextArea
+            label="Answer"
+            name="answer"
+            placeholder="e.g., Paris is the capital of France."
+          />
+
+          <TextArea
+            label="Answer"
+            name="answerWithError"
+            placeholder="e.g., Paris is the capital of France."
+            validationMessage="Please enter an answer."
           />
         </div>
 
