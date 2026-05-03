@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 type ButtonVariant =
   | "primary"
@@ -13,15 +13,18 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   iconRight?: ReactNode;
 };
 
-export function Button({
-  variant = "primary",
-  iconLeft,
-  iconRight,
-  children,
-  className = "",
-  type = "button",
-  ...props
-}: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    variant = "primary",
+    iconLeft,
+    iconRight,
+    children,
+    className = "",
+    type = "button",
+    ...props
+  },
+  ref,
+) {
   const raisedButtonStateClasses =
     "shadow-[inset_0_0_0_1px_var(--color-brand-neutral-900),2px_2px_0_0_var(--color-brand-neutral-900)] hover:not-disabled:shadow-[inset_0_0_0_1px_var(--color-brand-neutral-900),4px_4px_0_0_var(--color-brand-neutral-900)] focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_1px_var(--color-brand-neutral-900),3px_3px_0_0_var(--color-brand-blue-600)]";
   const outlineButtonStateClasses =
@@ -47,7 +50,7 @@ export function Button({
     .join(" ");
 
   return (
-    <button type={type} className={classes} {...props}>
+    <button ref={ref} type={type} className={classes} {...props}>
       {!hidesIcons && iconLeft ? (
         <span className="inline-flex size-4 shrink-0 text-current [&_svg]:size-full">
           {iconLeft}
@@ -61,4 +64,4 @@ export function Button({
       ) : null}
     </button>
   );
-}
+});

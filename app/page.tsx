@@ -1,7 +1,9 @@
 import { Button } from "./components/Button";
 import { Checkbox } from "./components/Checkbox";
+import { FlashcardContent } from "./components/FlashcardContent";
 import { Input } from "./components/Input";
 import { ProgressBar } from "./components/ProgressBar";
+import { Tabs } from "./components/Tabs";
 import { TextArea } from "./components/TextArea";
 
 function PlusIcon() {
@@ -27,6 +29,10 @@ export default function Home() {
         <p className="mt-3 text-preset-5-regular">
           Create, review, and master your study cards.
         </p>
+
+        <div className="mt-8">
+          <FlashcardContent />
+        </div>
 
         <div className="mt-6 flex flex-wrap gap-4">
           <Button iconLeft={<PlusIcon />}>Create Card</Button>
@@ -56,6 +62,23 @@ export default function Home() {
           <Button variant="base-secondary" iconRight={<PlusIcon />}>
             All Cards
           </Button>
+        </div>
+
+        <div className="mt-8 max-w-[490px]">
+          <Tabs
+            tabs={[
+              {
+                value: "study",
+                label: "Study Mode",
+                panel: "Review your active deck one card at a time.",
+              },
+              {
+                value: "all",
+                label: "All Cards",
+                panel: "Browse every card in the current deck.",
+              },
+            ]}
+          />
         </div>
 
         <div className="mt-6 flex gap-3">
