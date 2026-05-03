@@ -1,5 +1,6 @@
 import { Button } from "./components/Button";
 import { Checkbox } from "./components/Checkbox";
+import { Input } from "./components/Input";
 import { ProgressBar } from "./components/ProgressBar";
 
 function PlusIcon() {
@@ -56,6 +57,21 @@ export default function Home() {
           <Checkbox
             name="checkboxOnly"
             aria-label="Checkbox without visible label"
+          />
+        </div>
+
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <Input
+            label="Question"
+            name="question"
+            placeholder="e.g., What is the capital of France?"
+          />
+
+          <Input
+            label="Question"
+            name="questionWithError"
+            placeholder="e.g., What is the capital of France?"
+            validationMessage="Please enter a question."
           />
         </div>
 
