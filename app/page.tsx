@@ -1,20 +1,72 @@
-import { Button } from "./components/Button";
-import { Checkbox } from "./components/Checkbox";
-import { FlashcardContent } from "./components/FlashcardContent";
-import { Input } from "./components/Input";
-import { ProgressBar } from "./components/ProgressBar";
-import { Tabs } from "./components/Tabs";
-import { TextArea } from "./components/TextArea";
+import { Flashcard } from "./components/Flashcard";
 
-function PlusIcon() {
+const flashcards = [
+  {
+    category: "Web Development",
+    question: "What does HTML stand for?",
+    answer: "HyperText Markup Language",
+    progressValue: 0,
+  },
+  {
+    category: "JavaScript",
+    question: "What is the difference between 'let' and 'const' in JavaScript?",
+    answer:
+      "'let' allows you to reassign the variable, while 'const' creates a constant reference that cannot be reassigned. Both are block-scoped.",
+    progressValue: 2,
+  },
+  {
+    category: "Web Development",
+    question: "What does CSS stand for?",
+    answer: "Cascading Style Sheets",
+    progressValue: 0,
+  },
+  {
+    category: "Geography",
+    question: "What is the capital of France?",
+    answer: "Paris",
+    progressValue: 5,
+    mastered: true,
+  },
+  {
+    category: "JavaScript",
+    question: "What is a closure in JavaScript?",
+    answer:
+      "A closure is a function that has access to variables in its outer lexical scope, even after the outer function has returned.",
+    progressValue: 1,
+  },
+  {
+    category: "Web Development",
+    question: "What does DOM stand for?",
+    answer: "Document Object Model",
+    progressValue: 3,
+  },
+];
+
+function ChevronDownIcon() {
   return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
+    <svg viewBox="0 0 16 16" aria-hidden="true" className="size-4">
       <path
-        d="M8 3v10M3 8h10"
+        d="m4 6 4 4 4-4"
         fill="none"
         stroke="currentColor"
         strokeLinecap="round"
-        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function ShuffleIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" className="size-4">
+      <path
+        d="M2.5 4.5h1.2c1.4 0 2.1 1.1 2.8 2.4l.9 1.7c.7 1.3 1.4 2.4 2.8 2.4h3.3M11 8.5l2.5 2.5L11 13.5M2.5 11h1.2c1 0 1.6-.6 2.1-1.4M9.7 4.5h3.8M11 2l2.5 2.5L11 7"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
       />
     </svg>
   );
@@ -22,114 +74,53 @@ function PlusIcon() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-brand-neutral-900 p-8 text-white">
-      <section className="rounded-lg bg-white p-6 text-brand-neutral-900">
-        <h1 className="text-preset-1">Flashcards</h1>
+    <main className="min-h-screen bg-brand-neutral-100 px-6 py-4 text-brand-neutral-900">
+      <div className="mx-auto flex max-w-[1124px] flex-col gap-7">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <button
+              className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-brand-neutral-900 bg-brand-neutral-0 px-4 text-preset-5 transition-colors hover:bg-brand-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-600"
+              type="button"
+            >
+              All Categories
+              <ChevronDownIcon />
+            </button>
 
-        <p className="mt-3 text-preset-5-regular">
-          Create, review, and master your study cards.
-        </p>
+            <label className="inline-flex cursor-pointer items-center gap-2 text-preset-5">
+              <input
+                className="size-4 appearance-none rounded-[3px] border border-brand-neutral-900 bg-brand-neutral-0 checked:bg-brand-neutral-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-600"
+                type="checkbox"
+              />
+              Hide Mastered
+            </label>
+          </div>
 
-        <div className="mt-8">
-          <FlashcardContent />
+          <button
+            className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-brand-neutral-900 bg-brand-neutral-0 px-4 text-preset-5 transition-colors hover:bg-brand-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-600"
+            type="button"
+          >
+            <ShuffleIcon />
+            Shuffle
+          </button>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-4">
-          <Button iconLeft={<PlusIcon />}>Create Card</Button>
-
-          <Button iconRight={<PlusIcon />}>Add Deck</Button>
-
-          <Button iconLeft={<PlusIcon />} iconRight={<PlusIcon />}>
-            New Set
-          </Button>
-
-          <Button disabled iconLeft={<PlusIcon />}>
-            Disabled
-          </Button>
-
-          <Button variant="secondary" iconLeft={<PlusIcon />}>
-            Import Cards
-          </Button>
-
-          <Button variant="outline" iconRight={<PlusIcon />}>
-            Export Deck
-          </Button>
-
-          <Button variant="base-primary" iconLeft={<PlusIcon />}>
-            Study Mode
-          </Button>
-
-          <Button variant="base-secondary" iconRight={<PlusIcon />}>
-            All Cards
-          </Button>
-        </div>
-
-        <div className="mt-8 max-w-[490px]">
-          <Tabs
-            tabs={[
-              {
-                value: "study",
-                label: "Study Mode",
-                panel: "Review your active deck one card at a time.",
-              },
-              {
-                value: "all",
-                label: "All Cards",
-                panel: "Browse every card in the current deck.",
-              },
-            ]}
-          />
-        </div>
-
-        <div className="mt-6 flex gap-3">
-          <Checkbox name="rememberDeck" label="Remember this deck" />
-
-          <Checkbox name="shuffleCards" label="Shuffle cards" defaultChecked />
-
-          <Checkbox
-            name="checkboxOnly"
-            aria-label="Checkbox without visible label"
-          />
-        </div>
-
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          <Input
-            label="Question"
-            name="question"
-            placeholder="e.g., What is the capital of France?"
-          />
-
-          <Input
-            label="Question"
-            name="questionWithError"
-            placeholder="e.g., What is the capital of France?"
-            validationMessage="Please enter a question."
-          />
-
-          <TextArea
-            label="Answer"
-            name="answer"
-            placeholder="e.g., Paris is the capital of France."
-          />
-
-          <TextArea
-            label="Answer"
-            name="answerWithError"
-            placeholder="e.g., Paris is the capital of France."
-            validationMessage="Please enter an answer."
-          />
-        </div>
-
-        <div className="mt-8 flex flex-col gap-4">
-          {[0, 20, 40, 60, 80].map((value) => (
-            <ProgressBar
-              key={value}
-              label={`Deck mastery ${value}%`}
-              value={value}
+        <section
+          aria-label="Flashcards"
+          className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3"
+        >
+          {flashcards.map((flashcard) => (
+            <Flashcard
+              key={flashcard.question}
+              answer={flashcard.answer}
+              category={flashcard.category}
+              mastered={flashcard.mastered}
+              progressMax={5}
+              progressValue={flashcard.progressValue}
+              question={flashcard.question}
             />
           ))}
-        </div>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }
