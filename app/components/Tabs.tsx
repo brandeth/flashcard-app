@@ -26,6 +26,7 @@ type TabsProps = HTMLAttributes<HTMLDivElement> & {
   ariaLabel?: string;
   renderPanels?: boolean;
   tabClassName?: string;
+  tabListClassName?: string;
   panelClassName?: string;
 };
 
@@ -38,6 +39,7 @@ export function Tabs({
   renderPanels = true,
   className = "",
   tabClassName = "",
+  tabListClassName = "",
   panelClassName = "",
   ...props
 }: TabsProps) {
@@ -109,7 +111,12 @@ export function Tabs({
     <div className={["w-full", className].filter(Boolean).join(" ")} {...props}>
       <div
         aria-label={ariaLabel}
-        className="inline-flex w-full gap-1 rounded-full border border-brand-neutral-900 bg-brand-neutral-0 p-1 shadow-[1px_2px_0_0_var(--color-brand-neutral-900)]"
+        className={[
+          "inline-flex w-full gap-1 rounded-full border border-brand-neutral-900 bg-brand-neutral-0 p-1 shadow-[1px_2px_0_0_var(--color-brand-neutral-900)]",
+          tabListClassName,
+        ]
+          .filter(Boolean)
+          .join(" ")}
         onKeyDown={handleKeyDown}
         role="tablist"
       >
@@ -127,7 +134,7 @@ export function Tabs({
               aria-controls={renderPanels ? panelId : undefined}
               aria-selected={isActive}
               className={[
-                "min-w-0 flex-1 whitespace-nowrap px-5 sm:px-8",
+                "h-11 min-w-0 flex-1 whitespace-nowrap px-4 py-3",
                 tabClassName,
               ]
                 .filter(Boolean)

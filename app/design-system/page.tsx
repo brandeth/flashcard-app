@@ -3,6 +3,7 @@ import { Button } from "../components/Button";
 import { Checkbox } from "../components/Checkbox";
 import { Flashcard } from "../components/Flashcard";
 import { FlashcardContent } from "../components/FlashcardContent";
+import { FlashcardSection } from "../components/FlashcardSection";
 import { Input } from "../components/Input";
 import { ProgressBar } from "../components/ProgressBar";
 import { StatCard } from "../components/StatCard";
@@ -466,6 +467,12 @@ export default function DesignSystemPage() {
               progressMax={5}
               question="How should new screens stay consistent?"
             />
+          </div>
+        </Section>
+
+        <Section title="Flashcard Section">
+          <div className="max-w-[700px]">
+            <FlashcardSection />
           </div>
         </Section>
       </div>
