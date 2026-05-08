@@ -5,6 +5,8 @@ import { Flashcard } from "../components/Flashcard";
 import { FlashcardContent } from "../components/FlashcardContent";
 import { Input } from "../components/Input";
 import { ProgressBar } from "../components/ProgressBar";
+import { StatCard } from "../components/StatCard";
+import { StatCardList } from "../components/StatCardList";
 import { Tabs } from "../components/Tabs";
 import { TextArea } from "../components/TextArea";
 
@@ -99,6 +101,66 @@ function ArrowRightIcon() {
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function StackIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 28 28">
+      <path
+        d="m14 4 11 5-11 5L3 9l11-5ZM25 14l-11 5-11-5M25 19l-11 5-11-5"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.4"
+      />
+    </svg>
+  );
+}
+
+function BrainIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 28 28">
+      <path
+        d="M10.5 5.5a4 4 0 0 0-4 4v.2A4.8 4.8 0 0 0 4 14a4.8 4.8 0 0 0 2.5 4.3v.2a4 4 0 0 0 7 2.6V6.9a3.9 3.9 0 0 0-3-1.4ZM17.5 5.5a4 4 0 0 1 4 4v.2A4.8 4.8 0 0 1 24 14a4.8 4.8 0 0 1-2.5 4.3v.2a4 4 0 0 1-7 2.6V6.9a3.9 3.9 0 0 1 3-1.4ZM9 12v4M19 12v4"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.2"
+      />
+    </svg>
+  );
+}
+
+function BookIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 28 28">
+      <path
+        d="M5 6.5h7a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H5V6.5ZM23 6.5h-7a3 3 0 0 0-3 3v13a3 3 0 0 1 3-3h7V6.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.2"
+      />
+    </svg>
+  );
+}
+
+function TrayIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 28 28">
+      <path
+        d="M7.5 10.5h13l2.5 4.2v6.8H5v-6.8l2.5-4.2ZM9.5 14.7l1.7 2.3h5.6l1.7-2.3M10.5 7.5h7"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.2"
       />
     </svg>
   );
@@ -242,6 +304,59 @@ export default function DesignSystemPage() {
                 Add Card
               </Button>
             </ExamplePanel>
+          </div>
+        </Section>
+
+        <Section title="Stats">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <StatCard label="Total Cards" value="40" icon={<StackIcon />} />
+            <StatCard
+              accentClassName="bg-brand-yellow-500"
+              icon={<StackIcon />}
+              label="Mastered"
+              value="18"
+            />
+            <StatCard
+              accentClassName="bg-brand-teal-400"
+              icon={<StackIcon />}
+              iconClassName="text-brand-pink-700"
+              label="Due Today"
+              value="7"
+            />
+          </div>
+        </Section>
+
+        <Section title="Stat Card List">
+          <div className="max-w-[394px]">
+            <StatCardList
+              title="Study Statistics"
+              stats={[
+                {
+                  label: "Total Cards",
+                  value: "40",
+                  icon: <StackIcon />,
+                  accentClassName: "bg-brand-blue-400",
+                },
+                {
+                  label: "Mastered",
+                  value: "11",
+                  icon: <BrainIcon />,
+                  accentClassName: "bg-brand-teal-400",
+                },
+                {
+                  label: "In Progress",
+                  value: "21",
+                  icon: <BookIcon />,
+                  accentClassName: "bg-brand-pink-500",
+                },
+                {
+                  label: "Not Started",
+                  value: "8",
+                  icon: <TrayIcon />,
+                  accentClassName: "bg-brand-pink-400",
+                },
+              ]}
+            />
           </div>
         </Section>
 
