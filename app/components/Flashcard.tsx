@@ -1,4 +1,13 @@
-import type { HTMLAttributes, ReactNode } from "react";
+"use client";
+
+import {
+  useEffect,
+  useRef,
+  useState,
+  type HTMLAttributes,
+  type ReactNode,
+} from "react";
+import Image from "next/image";
 import { ProgressBar } from "./ProgressBar";
 
 type FlashcardProps = HTMLAttributes<HTMLElement> & {
@@ -11,6 +20,36 @@ type FlashcardProps = HTMLAttributes<HTMLElement> & {
   menuLabel?: string;
 };
 
+function EditIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4">
+      <path
+        d="M9.8 2.8 13.2 6m-1.5-4.7 3 3-8 8.1-3.7.7.7-3.7 8-8.1Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.4"
+      />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4">
+      <path
+        d="M3 4.5h10M6.5 2.5h3l.5 2H6l.5-2Zm-2 2 .5 9h6l.5-9M6.8 7v4M9.2 7v4"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.4"
+      />
+    </svg>
+  );
+}
+
 export function Flashcard({
   category = "Web Development",
   question = "What does HTML stand for?",
@@ -22,10 +61,39 @@ export function Flashcard({
   className = "",
   ...props
 }: FlashcardProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMenuOpen]);
+
   return (
     <article
       className={[
-        "flex min-h-[232px] w-full flex-col overflow-hidden rounded-2xl border-brand-neutral-900 bg-brand-neutral-0 text-brand-neutral-900 shadow-[2px_2px_0_0_var(--color-brand-neutral-900)]",
+        "relative flex min-h-[232px] w-full flex-col overflow-hidden rounded-2xl border-brand-neutral-900 bg-brand-neutral-0 text-brand-neutral-900 shadow-[2px_2px_0_0_var(--color-brand-neutral-900)]",
         "border-t border-r-[3px] border-b-[3px] border-l",
         className,
       ]
@@ -76,17 +144,57 @@ export function Flashcard({
           )}
         </div>
 
-        <button
-          aria-label={menuLabel}
-          className="flex cursor-pointer items-center justify-center text-brand-neutral-900 transition-colors hover:bg-brand-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-[-6px] focus-visible:outline-brand-blue-600"
-          type="button"
-        >
-          <span aria-hidden="true" className="flex flex-col gap-1">
-            <span className="size-1 rounded-full bg-current" />
-            <span className="size-1 rounded-full bg-current" />
-            <span className="size-1 rounded-full bg-current" />
-          </span>
-        </button>
+        <div ref={menuRef} className="relative z-30 flex items-center justify-center p-1">
+          <button
+            aria-expanded={isMenuOpen}
+            aria-haspopup="menu"
+            aria-label={menuLabel}
+            className={[
+              "flex size-8 cursor-pointer items-center justify-center rounded-md border bg-brand-neutral-0 text-brand-neutral-900 transition-[background-color,border-color] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-600",
+              isMenuOpen
+                ? "border-brand-neutral-900 shadow-[2px_2px_0_0_var(--color-brand-neutral-900)]"
+                : "border-transparent hover:border-brand-neutral-900 hover:shadow-[2px_2px_0_0_var(--color-brand-neutral-900)]",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            type="button"
+            onClick={() => setIsMenuOpen((current) => !current)}
+          >
+            <Image
+              src="/assets/dots.svg"
+              alt=""
+              aria-hidden="true"
+              width={4}
+              height={15}
+              className="h-[15px] w-1"
+            />
+          </button>
+
+          {isMenuOpen ? (
+            <div
+              aria-label="Flashcard actions"
+              className="absolute bottom-[calc(100%+6px)] right-2 z-40 w-40 overflow-hidden rounded-lg border border-brand-neutral-900 bg-brand-neutral-0 text-brand-neutral-900 shadow-[0_8px_14px_rgba(46,20,1,0.16)]"
+              role="menu"
+            >
+              <button
+                className="flex min-h-[39px] w-full cursor-pointer items-center gap-2.5 border-b border-brand-neutral-900 px-4 text-left text-preset-5 transition-colors hover:bg-brand-neutral-100 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-brand-blue-600"
+                role="menuitem"
+                type="button"
+              >
+                <EditIcon />
+                Edit
+              </button>
+              <button
+                className="flex min-h-[39px] w-full cursor-pointer items-center gap-2.5 px-4 text-left text-preset-5 transition-colors hover:bg-brand-neutral-100 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-brand-blue-600"
+                role="menuitem"
+                type="button"
+              >
+                <TrashIcon />
+                Delete
+              </button>
+            </div>
+          ) : null}
+        </div>
       </footer>
     </article>
   );

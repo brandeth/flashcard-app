@@ -1,16 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Tabs } from "./Tabs";
-
-type NavPill = {
-  value: string;
-  label: string;
-};
-
-const navPills: NavPill[] = [
-  { value: "study", label: "Study Mode" },
-  { value: "all", label: "All Cards" },
-];
+import { NavTabs } from "./NavTabs";
 
 export function Navbar() {
   return (
@@ -34,15 +24,7 @@ export function Navbar() {
           />
         </Link>
 
-        <Tabs
-          ariaLabel="Card view"
-          className="!w-auto shrink-0"
-          defaultValue="study"
-          renderPanels={false}
-          tabClassName="flex-none"
-          tabListClassName="!w-auto shrink-0 shadow-[2px_3px_0_0_var(--color-brand-neutral-900)]"
-          tabs={navPills}
-        />
+        <NavTabs />
       </nav>
     </header>
   );

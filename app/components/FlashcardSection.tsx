@@ -1,6 +1,9 @@
-import type { HTMLAttributes, ReactNode } from "react";
+"use client";
+
+import { useState, type HTMLAttributes, type ReactNode } from "react";
 import Image from "next/image";
 import { Button } from "./Button";
+import { CategoryDropdown } from "./CategoryDropdown";
 import { Checkbox } from "./Checkbox";
 import { FlashcardContent } from "./FlashcardContent";
 
@@ -33,21 +36,6 @@ function IconImage({
   );
 }
 
-function ChevronDownIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true" className="size-4">
-      <path
-        d="m4 6 4 4 4-4"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-    </svg>
-  );
-}
-
 export function FlashcardSection({
   category = "Web Development",
   question = "What does HTML stand for?",
@@ -59,6 +47,20 @@ export function FlashcardSection({
   className = "",
   ...props
 }: FlashcardSectionProps) {
+  const safeProgressMax = progressMax > 0 ? progressMax : 5;
+  const [currentProgress, setCurrentProgress] = useState(() =>
+    Math.min(Math.max(progressValue, 0), safeProgressMax),
+  );
+  const isMastered = currentProgress >= safeProgressMax;
+
+  function handleKnowThis() {
+    setCurrentProgress((current) => Math.min(current + 1, safeProgressMax));
+  }
+
+  function handleResetProgress() {
+    setCurrentProgress(0);
+  }
+
   return (
     <section
       aria-label="Study flashcard"
@@ -73,13 +75,7 @@ export function FlashcardSection({
     >
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-brand-neutral-900 px-4 py-4 sm:px-5 md:px-6">
         <div className="flex flex-wrap items-center gap-4">
-          <button
-            className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-brand-neutral-900 bg-brand-neutral-0 px-4 text-preset-5 transition-colors hover:bg-brand-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-600"
-            type="button"
-          >
-            All Categories
-            <ChevronDownIcon />
-          </button>
+          <CategoryDropdown />
 
           <Checkbox
             label="Hide Mastered"
@@ -101,22 +97,29 @@ export function FlashcardSection({
         <FlashcardContent
           answer={answer}
           category={category}
-          progressMax={progressMax}
-          progressValue={progressValue}
+          progressMax={safeProgressMax}
+          progressValue={currentProgress}
           question={question}
           className="h-[306px] max-w-none p-5"
         />
 
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Button
-            iconLeft={<IconImage src="/assets/check.svg" />}
+            disabled={isMastered}
+            iconLeft={
+              <IconImage
+                src={isMastered ? "/assets/check-circle.svg" : "/assets/check.svg"}
+              />
+            }
+            onClick={handleKnowThis}
             className="min-h-10 px-4 py-2"
           >
-            I Know This
+            {isMastered ? "Already Mastered" : "I Know This"}
           </Button>
           <Button
             variant="secondary"
             iconLeft={<IconImage src="/assets/undo-alt.svg" />}
+            onClick={handleResetProgress}
             className="min-h-10 px-4 py-2"
           >
             Reset Progress

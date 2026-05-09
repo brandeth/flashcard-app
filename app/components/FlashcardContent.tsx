@@ -30,6 +30,9 @@ export function FlashcardContent({
   ...props
 }: FlashcardContentProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const safeProgressMax = progressMax > 0 ? progressMax : 5;
+  const safeProgressValue = Math.min(Math.max(progressValue, 0), safeProgressMax);
+  const isMastered = safeProgressValue >= safeProgressMax;
 
   function toggleCard() {
     setIsFlipped((current) => !current);
@@ -55,6 +58,45 @@ export function FlashcardContent({
       toggleCard();
     }
   }
+
+  const progressIndicator = (
+    <div className="flex h-8 w-36 shrink-0 items-center justify-center">
+      {isMastered ? (
+        <div
+          aria-label="Flashcard progress"
+          aria-valuemax={safeProgressMax}
+          aria-valuemin={0}
+          aria-valuenow={safeProgressValue}
+          className="inline-flex min-h-7 items-center justify-center gap-1.5 rounded-full border border-brand-neutral-900 bg-brand-teal-400 px-3 text-preset-6 leading-none text-brand-neutral-900 shadow-[2px_2px_0_0_var(--color-brand-neutral-900)]"
+          role="progressbar"
+        >
+          <Image
+            src="/assets/check.svg"
+            alt=""
+            aria-hidden="true"
+            width={14}
+            height={14}
+            className="size-3.5"
+          />
+          Mastered
+          <span>
+            {safeProgressValue}/{safeProgressMax}
+          </span>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center gap-2">
+          <ProgressBar
+            value={safeProgressValue}
+            max={safeProgressMax}
+            label="Flashcard progress"
+          />
+          <span className="text-preset-6">
+            {safeProgressValue}/{safeProgressMax}
+          </span>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <article
@@ -129,16 +171,7 @@ export function FlashcardContent({
             <p className="text-preset-4">Click to reveal answer</p>
           </div>
 
-          <div className="flex items-center justify-center gap-2">
-            <ProgressBar
-              value={progressValue}
-              max={progressMax}
-              label="Flashcard progress"
-            />
-            <span className="text-preset-6">
-              {progressValue}/{progressMax}
-            </span>
-          </div>
+          {progressIndicator}
         </div>
 
         <div
@@ -154,16 +187,7 @@ export function FlashcardContent({
             <h2 className="text-preset-1">{answer}</h2>
           </div>
 
-          <div className="flex items-center justify-center gap-2">
-            <ProgressBar
-              value={progressValue}
-              max={progressMax}
-              label="Flashcard progress"
-            />
-            <span className="text-preset-6">
-              {progressValue}/{progressMax}
-            </span>
-          </div>
+          {progressIndicator}
         </div>
       </div>
     </article>
