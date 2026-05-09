@@ -6,6 +6,20 @@ import { Button } from "./Button";
 import { CategoryDropdown } from "./CategoryDropdown";
 import { Checkbox } from "./Checkbox";
 import { FlashcardContent } from "./FlashcardContent";
+import {
+  flashcards as defaultFlashcards,
+  type FlashcardData,
+} from "../data/flashcards";
+
+type StudyFlashcard = {
+  category: ReactNode;
+  question: ReactNode;
+  answer: ReactNode;
+  progressValue?: number;
+  progressMax?: number;
+};
+
+type FlashcardSectionCard = StudyFlashcard | FlashcardData;
 
 type FlashcardSectionProps = HTMLAttributes<HTMLElement> & {
   category?: ReactNode;
@@ -15,6 +29,7 @@ type FlashcardSectionProps = HTMLAttributes<HTMLElement> & {
   progressMax?: number;
   currentCard?: number;
   totalCards?: number;
+  flashcards?: FlashcardSectionCard[];
 };
 
 function IconImage({
@@ -36,6 +51,14 @@ function IconImage({
   );
 }
 
+function getProgressMax(card: FlashcardSectionCard, fallbackProgressMax: number) {
+  if (card.progressMax && card.progressMax > 0) {
+    return card.progressMax;
+  }
+
+  return fallbackProgressMax > 0 ? fallbackProgressMax : 5;
+}
+
 export function FlashcardSection({
   category = "Web Development",
   question = "What does HTML stand for?",
@@ -43,22 +66,65 @@ export function FlashcardSection({
   progressValue = 0,
   progressMax = 5,
   currentCard = 1,
-  totalCards = 40,
+  totalCards,
+  flashcards,
   className = "",
   ...props
 }: FlashcardSectionProps) {
-  const safeProgressMax = progressMax > 0 ? progressMax : 5;
-  const [currentProgress, setCurrentProgress] = useState(() =>
-    Math.min(Math.max(progressValue, 0), safeProgressMax),
+  const cards =
+    flashcards && flashcards.length > 0
+      ? flashcards
+      : [
+          {
+            category,
+            question,
+            answer,
+            progressValue,
+            progressMax,
+          },
+          ...defaultFlashcards.slice(1),
+        ];
+  const initialCardIndex = Math.min(
+    Math.max(currentCard - 1, 0),
+    cards.length - 1,
   );
-  const isMastered = currentProgress >= safeProgressMax;
+  const [currentCardIndex, setCurrentCardIndex] = useState(initialCardIndex);
+  const activeCard = cards[currentCardIndex];
+  const activeProgressMax = getProgressMax(activeCard, progressMax);
+  const [cardProgressValues, setCardProgressValues] = useState(() =>
+    cards.map((card) => {
+      const cardProgressMax = getProgressMax(card, progressMax);
+
+      return Math.min(Math.max(card.progressValue ?? 0, 0), cardProgressMax);
+    }),
+  );
+  const currentProgress = cardProgressValues[currentCardIndex] ?? 0;
+  const currentCardNumber = currentCardIndex + 1;
+  const totalCardCount = totalCards ?? cards.length;
+  const hasPreviousCard = currentCardIndex > 0;
+  const hasNextCard = currentCardIndex < cards.length - 1;
+  const isMastered = currentProgress >= activeProgressMax;
 
   function handleKnowThis() {
-    setCurrentProgress((current) => Math.min(current + 1, safeProgressMax));
+    setCardProgressValues((current) =>
+      current.map((value, index) =>
+        index === currentCardIndex ? Math.min(value + 1, activeProgressMax) : value,
+      ),
+    );
   }
 
   function handleResetProgress() {
-    setCurrentProgress(0);
+    setCardProgressValues((current) =>
+      current.map((value, index) => (index === currentCardIndex ? 0 : value)),
+    );
+  }
+
+  function handlePreviousCard() {
+    setCurrentCardIndex((current) => Math.max(current - 1, 0));
+  }
+
+  function handleNextCard() {
+    setCurrentCardIndex((current) => Math.min(current + 1, cards.length - 1));
   }
 
   return (
@@ -95,11 +161,12 @@ export function FlashcardSection({
 
       <div className="flex flex-col items-center gap-4 border-b border-brand-neutral-900 px-4 py-4 sm:px-5 md:px-6">
         <FlashcardContent
-          answer={answer}
-          category={category}
-          progressMax={safeProgressMax}
+          key={currentCardIndex}
+          answer={activeCard.answer}
+          category={activeCard.category}
+          progressMax={activeProgressMax}
           progressValue={currentProgress}
-          question={question}
+          question={activeCard.question}
           className="h-[306px] max-w-none p-5"
         />
 
@@ -130,19 +197,23 @@ export function FlashcardSection({
       <footer className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-4 sm:px-5 md:px-6">
         <Button
           variant="outline"
+          disabled={!hasPreviousCard}
           iconLeft={<IconImage src="/assets/angle-left.svg" />}
+          onClick={handlePreviousCard}
           className="min-h-10 px-4 py-2"
         >
           Previous
         </Button>
 
         <p className="text-center text-preset-5 text-brand-neutral-600">
-          Card {currentCard} of {totalCards}
+          Card {currentCardNumber} of {totalCardCount}
         </p>
 
         <Button
           variant="outline"
+          disabled={!hasNextCard}
           iconRight={<IconImage src="/assets/angle-right.svg" />}
+          onClick={handleNextCard}
           className="min-h-10 px-4 py-2"
         >
           Next

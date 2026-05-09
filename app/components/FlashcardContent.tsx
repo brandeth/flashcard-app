@@ -184,7 +184,7 @@ export function FlashcardContent({
 
           <div className="flex w-full flex-col items-center justify-center gap-4">
             <p className="text-preset-4">Answer:</p>
-            <h2 className="text-preset-1">{answer}</h2>
+            <h2 className="text-preset-2">{answer}</h2>
           </div>
 
           {progressIndicator}
