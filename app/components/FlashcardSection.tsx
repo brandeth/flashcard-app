@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, type HTMLAttributes, type ReactNode } from "react";
+import {
+  type Dispatch,
+  useMemo,
+  useState,
+  type HTMLAttributes,
+  type ReactNode,
+  type SetStateAction,
+} from "react";
 import Image from "next/image";
 import { Button } from "./Button";
 import { CategoryDropdown } from "./CategoryDropdown";
@@ -21,6 +28,10 @@ type StudyFlashcard = {
 
 type FlashcardSectionCard = StudyFlashcard | FlashcardData;
 
+type IndexedFlashcard = FlashcardSectionCard & {
+  sourceIndex: number;
+};
+
 type FlashcardSectionProps = HTMLAttributes<HTMLElement> & {
   category?: ReactNode;
   question?: ReactNode;
@@ -30,6 +41,8 @@ type FlashcardSectionProps = HTMLAttributes<HTMLElement> & {
   currentCard?: number;
   totalCards?: number;
   flashcards?: FlashcardSectionCard[];
+  cardProgressValues?: number[];
+  onCardProgressValuesChange?: Dispatch<SetStateAction<number[]>>;
 };
 
 function IconImage({
@@ -59,6 +72,32 @@ function getProgressMax(card: FlashcardSectionCard, fallbackProgressMax: number)
   return fallbackProgressMax > 0 ? fallbackProgressMax : 5;
 }
 
+function isInitiallyMastered(card: FlashcardSectionCard) {
+  return "mastered" in card && card.mastered === true;
+}
+
+function getCategoryLabel(category: ReactNode) {
+  if (typeof category === "string" || typeof category === "number") {
+    return String(category);
+  }
+
+  return "Uncategorized";
+}
+
+function shuffleIndexes(indexes: number[]) {
+  const shuffled = [...indexes];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [
+      shuffled[swapIndex],
+      shuffled[index],
+    ];
+  }
+
+  return shuffled;
+}
+
 export function FlashcardSection({
   category = "Web Development",
   question = "What does HTML stand for?",
@@ -68,70 +107,165 @@ export function FlashcardSection({
   currentCard = 1,
   totalCards,
   flashcards,
+  cardProgressValues,
+  onCardProgressValuesChange,
   className = "",
   ...props
 }: FlashcardSectionProps) {
-  const cards =
-    flashcards && flashcards.length > 0
-      ? flashcards
-      : [
-          {
-            category,
-            question,
-            answer,
-            progressValue,
-            progressMax,
-          },
-          ...defaultFlashcards.slice(1),
-        ];
+  const cards = useMemo<FlashcardSectionCard[]>(
+    () =>
+      flashcards && flashcards.length > 0
+        ? flashcards
+        : [
+            {
+              category,
+              question,
+              answer,
+              progressValue,
+              progressMax,
+            },
+            ...defaultFlashcards.slice(1),
+          ],
+    [answer, category, flashcards, progressMax, progressValue, question],
+  );
   const initialCardIndex = Math.min(
     Math.max(currentCard - 1, 0),
     cards.length - 1,
   );
-  const [currentCardIndex, setCurrentCardIndex] = useState(initialCardIndex);
-  const activeCard = cards[currentCardIndex];
-  const activeProgressMax = getProgressMax(activeCard, progressMax);
-  const [cardProgressValues, setCardProgressValues] = useState(() =>
+  const [currentVisibleIndex, setCurrentVisibleIndex] = useState(initialCardIndex);
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [hideMastered, setHideMastered] = useState(false);
+  const [cardOrder, setCardOrder] = useState(() =>
+    cards.map((_, index) => index),
+  );
+  const [internalCardProgressValues, setInternalCardProgressValues] = useState(() =>
     cards.map((card) => {
       const cardProgressMax = getProgressMax(card, progressMax);
 
-      return Math.min(Math.max(card.progressValue ?? 0, 0), cardProgressMax);
+      return isInitiallyMastered(card)
+        ? cardProgressMax
+        : Math.min(Math.max(card.progressValue ?? 0, 0), cardProgressMax);
     }),
   );
-  const currentProgress = cardProgressValues[currentCardIndex] ?? 0;
-  const currentCardNumber = currentCardIndex + 1;
-  const totalCardCount = totalCards ?? cards.length;
-  const hasPreviousCard = currentCardIndex > 0;
-  const hasNextCard = currentCardIndex < cards.length - 1;
+  const activeCardProgressValues = cardProgressValues ?? internalCardProgressValues;
+  const setActiveCardProgressValues =
+    onCardProgressValuesChange ?? setInternalCardProgressValues;
+
+  const categories = useMemo(() => {
+    const categoryCounts = new Map<string, number>();
+
+    cards.forEach((card) => {
+      const categoryLabel = getCategoryLabel(card.category);
+      categoryCounts.set(categoryLabel, (categoryCounts.get(categoryLabel) ?? 0) + 1);
+    });
+
+    return Array.from(categoryCounts, ([label, count]) => ({
+      label,
+      count,
+    })).sort((first, second) => first.label.localeCompare(second.label));
+  }, [cards]);
+
+  const visibleCards = useMemo<IndexedFlashcard[]>(
+    () =>
+      cardOrder
+        .map((sourceIndex) => ({
+          ...cards[sourceIndex],
+          sourceIndex,
+        }))
+        .filter((card) => {
+          const matchesCategory =
+            selectedCategories.size === 0 ||
+            selectedCategories.has(getCategoryLabel(card.category));
+
+          if (!matchesCategory) {
+            return false;
+          }
+
+          if (!hideMastered) {
+            return true;
+          }
+
+          const progressMaxForCard = getProgressMax(card, progressMax);
+          const progressValue = activeCardProgressValues[card.sourceIndex] ?? 0;
+
+          return progressValue < progressMaxForCard;
+        }),
+    [
+      activeCardProgressValues,
+      cardOrder,
+      cards,
+      hideMastered,
+      progressMax,
+      selectedCategories,
+    ],
+  );
+
+  const effectiveVisibleIndex = Math.min(
+    Math.max(currentVisibleIndex, 0),
+    Math.max(visibleCards.length - 1, 0),
+  );
+  const activeCard = visibleCards[effectiveVisibleIndex];
+  const activeSourceIndex = activeCard?.sourceIndex ?? 0;
+  const activeProgressMax = activeCard
+    ? getProgressMax(activeCard, progressMax)
+    : progressMax;
+  const currentProgress = activeCard
+    ? activeCardProgressValues[activeSourceIndex] ?? 0
+    : 0;
+  const currentCardNumber = activeCard ? effectiveVisibleIndex + 1 : 0;
+  const totalCardCount = totalCards ?? visibleCards.length;
+  const hasPreviousCard = effectiveVisibleIndex > 0;
+  const hasNextCard = effectiveVisibleIndex < visibleCards.length - 1;
   const isMastered = currentProgress >= activeProgressMax;
+  const categoryLabel =
+    selectedCategories.size === 0
+      ? "All Categories"
+      : `${selectedCategories.size} Selected`;
 
   function handleKnowThis() {
-    setCardProgressValues((current) =>
+    if (!activeCard) {
+      return;
+    }
+
+    setActiveCardProgressValues((current) =>
       current.map((value, index) =>
-        index === currentCardIndex ? Math.min(value + 1, activeProgressMax) : value,
+        index === activeSourceIndex ? Math.min(value + 1, activeProgressMax) : value,
       ),
     );
   }
 
   function handleResetProgress() {
-    setCardProgressValues((current) =>
-      current.map((value, index) => (index === currentCardIndex ? 0 : value)),
+    if (!activeCard) {
+      return;
+    }
+
+    setActiveCardProgressValues((current) =>
+      current.map((value, index) => (index === activeSourceIndex ? 0 : value)),
     );
   }
 
   function handlePreviousCard() {
-    setCurrentCardIndex((current) => Math.max(current - 1, 0));
+    setCurrentVisibleIndex(Math.max(effectiveVisibleIndex - 1, 0));
   }
 
   function handleNextCard() {
-    setCurrentCardIndex((current) => Math.min(current + 1, cards.length - 1));
+    setCurrentVisibleIndex(
+      Math.min(effectiveVisibleIndex + 1, visibleCards.length - 1),
+    );
+  }
+
+  function handleShuffle() {
+    setCardOrder((current) => shuffleIndexes(current));
+    setCurrentVisibleIndex(0);
   }
 
   return (
     <section
       aria-label="Study flashcard"
       className={[
-        "w-full overflow-hidden rounded-2xl border-brand-neutral-900 bg-brand-neutral-0 text-brand-neutral-900",
+        "flex h-full w-full flex-col overflow-hidden rounded-2xl border-brand-neutral-900 bg-brand-neutral-0 text-brand-neutral-900",
         "border-t border-r-[3px] border-b-[3px] border-l",
         className,
       ]
@@ -141,11 +275,18 @@ export function FlashcardSection({
     >
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-brand-neutral-900 px-4 py-4 sm:px-5 md:px-6">
         <div className="flex flex-wrap items-center gap-4">
-          <CategoryDropdown />
+          <CategoryDropdown
+            categories={categories}
+            label={categoryLabel}
+            selectedCategories={selectedCategories}
+            onSelectedCategoriesChange={setSelectedCategories}
+          />
 
           <Checkbox
+            checked={hideMastered}
             label="Hide Mastered"
             name="hide-mastered"
+            onChange={(event) => setHideMastered(event.target.checked)}
             className="[&>span:first-of-type]:size-4"
           />
         </div>
@@ -153,26 +294,36 @@ export function FlashcardSection({
         <Button
           variant="outline"
           iconLeft={<IconImage src="/assets/shuffle.svg" />}
+          onClick={handleShuffle}
+          disabled={visibleCards.length <= 1}
           className="min-h-10 px-4 py-2"
         >
           Shuffle
         </Button>
       </header>
 
-      <div className="flex flex-col items-center gap-4 border-b border-brand-neutral-900 px-4 py-4 sm:px-5 md:px-6">
-        <FlashcardContent
-          key={currentCardIndex}
-          answer={activeCard.answer}
-          category={activeCard.category}
-          progressMax={activeProgressMax}
-          progressValue={currentProgress}
-          question={activeCard.question}
-          className="h-[306px] max-w-none p-5"
-        />
+      <div className="flex flex-1 flex-col items-center gap-4 border-b border-brand-neutral-900 px-4 py-4 sm:px-5 md:px-6">
+        {activeCard ? (
+          <FlashcardContent
+            key={activeSourceIndex}
+            answer={activeCard.answer}
+            category={activeCard.category}
+            progressMax={activeProgressMax}
+            progressValue={currentProgress}
+            question={activeCard.question}
+            className="min-h-[306px] flex-1 max-w-none p-5"
+          />
+        ) : (
+          <div className="flex min-h-[306px] w-full flex-1 items-center justify-center rounded-2xl border border-brand-neutral-900 bg-brand-neutral-0 p-5 text-center shadow-[2px_2px_0_0_var(--color-brand-neutral-900)]">
+            <p className="text-preset-4 text-brand-neutral-600">
+              No cards match the current filters.
+            </p>
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Button
-            disabled={isMastered}
+            disabled={!activeCard || isMastered}
             iconLeft={
               <IconImage
                 src={isMastered ? "/assets/check-circle.svg" : "/assets/check.svg"}
@@ -185,6 +336,7 @@ export function FlashcardSection({
           </Button>
           <Button
             variant="secondary"
+            disabled={!activeCard}
             iconLeft={<IconImage src="/assets/undo-alt.svg" />}
             onClick={handleResetProgress}
             className="min-h-10 px-4 py-2"

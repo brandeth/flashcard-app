@@ -11,6 +11,8 @@ type CategoryDropdownProps = {
   categories?: CategoryOption[];
   label?: ReactNode;
   menuLabel?: string;
+  selectedCategories?: Set<string>;
+  onSelectedCategoriesChange?: (categories: Set<string>) => void;
 };
 
 const defaultCategories: CategoryOption[] = [
@@ -55,12 +57,16 @@ export function CategoryDropdown({
   categories = defaultCategories,
   label = "All Categories",
   menuLabel = "Filter flashcards by category",
+  selectedCategories,
+  onSelectedCategoriesChange,
 }: CategoryDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
+  const [internalSelectedCategories, setInternalSelectedCategories] = useState<Set<string>>(
     () => new Set(),
   );
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const activeSelectedCategories =
+    selectedCategories ?? internalSelectedCategories;
 
   useEffect(() => {
     if (!isOpen) {
@@ -92,17 +98,19 @@ export function CategoryDropdown({
   }, [isOpen]);
 
   function toggleCategory(category: string) {
-    setSelectedCategories((current) => {
-      const next = new Set(current);
+    const next = new Set(activeSelectedCategories);
 
-      if (next.has(category)) {
-        next.delete(category);
-      } else {
-        next.add(category);
-      }
+    if (next.has(category)) {
+      next.delete(category);
+    } else {
+      next.add(category);
+    }
 
-      return next;
-    });
+    if (onSelectedCategoriesChange) {
+      onSelectedCategoriesChange(next);
+    } else {
+      setInternalSelectedCategories(next);
+    }
   }
 
   return (
@@ -128,7 +136,7 @@ export function CategoryDropdown({
             const inputId = `category-${category.label
               .toLowerCase()
               .replace(/[^a-z0-9]+/g, "-")}`;
-            const isSelected = selectedCategories.has(category.label);
+            const isSelected = activeSelectedCategories.has(category.label);
 
             return (
               <label
