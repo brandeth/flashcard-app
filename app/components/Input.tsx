@@ -1,18 +1,26 @@
-import { useId, type InputHTMLAttributes, type ReactNode } from "react";
+import {
+  forwardRef,
+  useId,
+  type InputHTMLAttributes,
+  type ReactNode,
+} from "react";
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: ReactNode;
   validationMessage?: ReactNode;
 };
 
-export function Input({
-  className = "",
-  id,
-  label,
-  name,
-  validationMessage,
-  ...props
-}: InputProps) {
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    className = "",
+    id,
+    label,
+    name,
+    validationMessage,
+    ...props
+  },
+  ref,
+) {
   const generatedId = useId();
   const inputId = id ?? name ?? generatedId;
   const validationId = validationMessage ? `${inputId}-validation` : undefined;
@@ -44,6 +52,7 @@ export function Input({
 
       <input
         {...props}
+        ref={ref}
         id={inputId}
         name={name}
         aria-describedby={describedBy || undefined}
@@ -65,4 +74,4 @@ export function Input({
       ) : null}
     </div>
   );
-}
+});

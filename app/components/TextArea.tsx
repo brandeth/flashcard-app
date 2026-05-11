@@ -1,7 +1,10 @@
 import { useId, type ReactNode, type TextareaHTMLAttributes } from "react";
 
+type TextAreaResize = "none" | "vertical";
+
 type TextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label?: ReactNode;
+  resize?: TextAreaResize;
   validationMessage?: ReactNode;
 };
 
@@ -10,6 +13,7 @@ export function TextArea({
   id,
   label,
   name,
+  resize = "vertical",
   validationMessage,
   ...props
 }: TextAreaProps) {
@@ -21,7 +25,8 @@ export function TextArea({
     .join(" ");
 
   const textAreaClasses = [
-    "h-[100px] min-h-[100px] w-full resize-y rounded-md border border-brand-neutral-900 bg-brand-neutral-0 px-4 py-3 text-preset-5 text-brand-neutral-900 placeholder:text-brand-neutral-600",
+    "h-[100px] min-h-[100px] w-full rounded-md border border-brand-neutral-900 bg-brand-neutral-0 px-4 py-3 text-preset-5 text-brand-neutral-900 placeholder:text-brand-neutral-600",
+    resize === "none" ? "resize-none" : "resize-y",
     "transition-[border-color,box-shadow] duration-150 ease-in-out",
     "hover:shadow-[2px_2px_0_0_var(--color-brand-neutral-900)]",
     "focus:border-brand-blue-600 focus:outline-none focus:shadow-[2px_2px_0_0_var(--color-brand-blue-600)]",

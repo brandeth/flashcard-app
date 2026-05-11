@@ -9,6 +9,7 @@ import {
 } from "react";
 import Image from "next/image";
 import { ProgressBar } from "./ProgressBar";
+import { EditCardDialog } from "./EditCardDialog";
 
 type FlashcardProps = HTMLAttributes<HTMLElement> & {
   category?: ReactNode;
@@ -19,6 +20,20 @@ type FlashcardProps = HTMLAttributes<HTMLElement> & {
   mastered?: boolean;
   menuLabel?: string;
 };
+
+type EditableCardContent = {
+  answer: string;
+  category: string;
+  question: string;
+};
+
+function getEditableText(value: ReactNode, fallback: string) {
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  return fallback;
+}
 
 function EditIcon() {
   return (
@@ -62,6 +77,12 @@ export function Flashcard({
   ...props
 }: FlashcardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [cardContent, setCardContent] = useState<EditableCardContent>({
+    answer: getEditableText(answer, "HyperText Markup Language"),
+    category: getEditableText(category, "Web Development"),
+    question: getEditableText(question, "What does HTML stand for?"),
+  });
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -102,20 +123,20 @@ export function Flashcard({
       {...props}
     >
       <header className="flex min-h-[49px] items-center border-b border-brand-neutral-900 px-3.5 py-3">
-        <h2 className="text-preset-3">{question}</h2>
+        <h2 className="text-preset-3">{cardContent.question}</h2>
       </header>
 
       <div className="flex min-h-[132px] flex-1 flex-col px-3.5 py-4">
         <p className="text-preset-5 text-brand-neutral-900/60">
           Answer:
         </p>
-        <p className="mt-2 text-preset-5">{answer}</p>
+        <p className="mt-2 text-preset-5">{cardContent.answer}</p>
       </div>
 
       <footer className="grid min-h-[49px] grid-cols-[minmax(104px,auto)_1fr_42px] border-t border-brand-neutral-900">
         <div className="flex min-w-0 items-center px-3.5">
           <span className="inline-flex min-h-7 max-w-full items-center rounded-full border border-brand-neutral-900 px-3 text-[0.75rem] leading-none font-medium">
-            {category}
+            {cardContent.category}
           </span>
         </div>
 
@@ -180,6 +201,10 @@ export function Flashcard({
                 className="flex min-h-[39px] w-full cursor-pointer items-center gap-2.5 border-b border-brand-neutral-900 px-4 text-left text-preset-5 transition-colors hover:bg-brand-neutral-100 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-brand-blue-600"
                 role="menuitem"
                 type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsEditDialogOpen(true);
+                }}
               >
                 <EditIcon />
                 Edit
@@ -196,6 +221,16 @@ export function Flashcard({
           ) : null}
         </div>
       </footer>
+
+      <EditCardDialog
+        isOpen={isEditDialogOpen}
+        values={cardContent}
+        onClose={() => setIsEditDialogOpen(false)}
+        onSubmit={(updatedContent) => {
+          setCardContent(updatedContent);
+          setIsEditDialogOpen(false);
+        }}
+      />
     </article>
   );
 }

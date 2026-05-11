@@ -129,3 +129,20 @@ body {
   color: var(--foreground);
   font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
 }
+
+body.modal-open main {
+  pointer-events: none;
+}
+
+body.modal-open input:hover,
+body.modal-open textarea:hover {
+  box-shadow: none;
+}
+
+body.modal-open [role="dialog"],
+body.modal-open [data-modal-overlay],
+body.modal-open [role="dialog"] input,
+body.modal-open [role="dialog"] textarea,
+body.modal-open [role="dialog"] button {
+  pointer-events: auto;
+}
