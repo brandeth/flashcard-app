@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { Button } from "./Button";
 import { CategoryDropdown } from "./CategoryDropdown";
@@ -19,6 +22,13 @@ function IconImage({ src }: Readonly<{ src: string }>) {
 }
 
 export function AllCardsList() {
+  const [visibleFlashcards, setVisibleFlashcards] = useState(() =>
+    flashcards.map((flashcard, index) => ({
+      ...flashcard,
+      id: `${flashcard.question}-${index}`,
+    })),
+  );
+
   return (
     <section aria-label="All flashcards" className="mt-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -42,13 +52,20 @@ export function AllCardsList() {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {flashcards.map((flashcard, index) => (
+        {visibleFlashcards.map((flashcard) => (
           <Flashcard
-            key={`${flashcard.question}-${index}`}
+            key={flashcard.id}
             answer={flashcard.answer}
             category={flashcard.category}
             mastered={flashcard.mastered}
             menuLabel={`Options for ${flashcard.question}`}
+            onDelete={() => {
+              setVisibleFlashcards((currentFlashcards) =>
+                currentFlashcards.filter(
+                  (currentFlashcard) => currentFlashcard.id !== flashcard.id,
+                ),
+              );
+            }}
             progressMax={5}
             progressValue={flashcard.progressValue}
             question={flashcard.question}

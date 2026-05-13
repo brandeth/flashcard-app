@@ -9,6 +9,7 @@ import {
 } from "react";
 import Image from "next/image";
 import { ProgressBar } from "./ProgressBar";
+import { DeleteCardDialog } from "./DeleteCardDialog";
 import { EditCardDialog } from "./EditCardDialog";
 
 type FlashcardProps = HTMLAttributes<HTMLElement> & {
@@ -19,6 +20,7 @@ type FlashcardProps = HTMLAttributes<HTMLElement> & {
   progressMax?: number;
   mastered?: boolean;
   menuLabel?: string;
+  onDelete?: () => void;
 };
 
 type EditableCardContent = {
@@ -73,11 +75,13 @@ export function Flashcard({
   progressMax = 5,
   mastered = false,
   menuLabel = "Flashcard options",
+  onDelete,
   className = "",
   ...props
 }: FlashcardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [cardContent, setCardContent] = useState<EditableCardContent>({
     answer: getEditableText(answer, "HyperText Markup Language"),
     category: getEditableText(category, "Web Development"),
@@ -213,6 +217,10 @@ export function Flashcard({
                 className="flex min-h-[39px] w-full cursor-pointer items-center gap-2.5 px-4 text-left text-preset-5 transition-colors hover:bg-brand-neutral-100 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-brand-blue-600"
                 role="menuitem"
                 type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsDeleteDialogOpen(true);
+                }}
               >
                 <TrashIcon />
                 Delete
@@ -229,6 +237,16 @@ export function Flashcard({
         onSubmit={(updatedContent) => {
           setCardContent(updatedContent);
           setIsEditDialogOpen(false);
+        }}
+      />
+
+      <DeleteCardDialog
+        cardQuestion={cardContent.question}
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={() => {
+          setIsDeleteDialogOpen(false);
+          onDelete?.();
         }}
       />
     </article>
