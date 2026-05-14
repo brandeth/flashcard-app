@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { Button } from "./Button";
 import { CategoryDropdown } from "./CategoryDropdown";
 import { Checkbox } from "./Checkbox";
 import { Flashcard } from "./Flashcard";
-import { flashcards } from "../data/flashcards";
+import type { FlashcardData } from "../data/flashcards";
+
+export type AllCardsListItem = FlashcardData & {
+  id: string;
+};
+
+type AllCardsListProps = {
+  flashcards: AllCardsListItem[];
+  onDeleteCard: (id: string) => void;
+};
 
 function IconImage({ src }: Readonly<{ src: string }>) {
   return (
@@ -21,14 +29,7 @@ function IconImage({ src }: Readonly<{ src: string }>) {
   );
 }
 
-export function AllCardsList() {
-  const [visibleFlashcards, setVisibleFlashcards] = useState(() =>
-    flashcards.map((flashcard, index) => ({
-      ...flashcard,
-      id: `${flashcard.question}-${index}`,
-    })),
-  );
-
+export function AllCardsList({ flashcards, onDeleteCard }: AllCardsListProps) {
   return (
     <section aria-label="All flashcards" className="mt-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -52,7 +53,7 @@ export function AllCardsList() {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {visibleFlashcards.map((flashcard) => (
+        {flashcards.map((flashcard) => (
           <Flashcard
             key={flashcard.id}
             answer={flashcard.answer}
@@ -60,11 +61,7 @@ export function AllCardsList() {
             mastered={flashcard.mastered}
             menuLabel={`Options for ${flashcard.question}`}
             onDelete={() => {
-              setVisibleFlashcards((currentFlashcards) =>
-                currentFlashcards.filter(
-                  (currentFlashcard) => currentFlashcard.id !== flashcard.id,
-                ),
-              );
+              onDeleteCard(flashcard.id);
             }}
             progressMax={5}
             progressValue={flashcard.progressValue}

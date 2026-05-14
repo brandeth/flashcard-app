@@ -104,6 +104,10 @@
   .animate-star-sparkle-delayed {
     animation: star-sparkle 650ms ease-out 90ms;
   }
+
+  .animate-toast-fade-out {
+    animation: toast-fade-out 400ms ease-in forwards;
+  }
 }
 
 @keyframes star-sparkle {
@@ -121,6 +125,13 @@
 
   100% {
     transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes toast-fade-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
   }
 }
 
