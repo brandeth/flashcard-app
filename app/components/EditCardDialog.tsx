@@ -5,7 +5,7 @@ import { Button } from "./Button";
 import { Input } from "./Input";
 import { TextArea } from "./TextArea";
 
-type EditCardDialogValues = {
+export type EditCardDialogValues = {
   answer: string;
   category: string;
   question: string;
@@ -76,9 +76,9 @@ export function EditCardDialog({
 
     const formData = new FormData(event.currentTarget);
     onSubmit({
-      answer: String(formData.get("answer") ?? ""),
-      category: String(formData.get("category") ?? ""),
-      question: String(formData.get("question") ?? ""),
+      answer: String(formData.get("answer") ?? "").trim(),
+      category: String(formData.get("category") ?? "").trim(),
+      question: String(formData.get("question") ?? "").trim(),
     });
   }
 

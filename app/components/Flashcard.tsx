@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import { ProgressBar } from "./ProgressBar";
 import { DeleteCardDialog } from "./DeleteCardDialog";
-import { EditCardDialog } from "./EditCardDialog";
+import { EditCardDialog, type EditCardDialogValues } from "./EditCardDialog";
 
 type FlashcardProps = HTMLAttributes<HTMLElement> & {
   category?: ReactNode;
@@ -21,6 +21,7 @@ type FlashcardProps = HTMLAttributes<HTMLElement> & {
   mastered?: boolean;
   menuLabel?: string;
   onDelete?: () => void;
+  onUpdate?: (values: EditCardDialogValues) => void;
 };
 
 type EditableCardContent = {
@@ -76,6 +77,7 @@ export function Flashcard({
   mastered = false,
   menuLabel = "Flashcard options",
   onDelete,
+  onUpdate,
   className = "",
   ...props
 }: FlashcardProps) {
@@ -237,6 +239,7 @@ export function Flashcard({
         onSubmit={(updatedContent) => {
           setCardContent(updatedContent);
           setIsEditDialogOpen(false);
+          onUpdate?.(updatedContent);
         }}
       />
 

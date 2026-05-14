@@ -5,6 +5,7 @@ import { Button } from "./Button";
 import { CategoryDropdown } from "./CategoryDropdown";
 import { Checkbox } from "./Checkbox";
 import { Flashcard } from "./Flashcard";
+import type { CreateCardFormValues } from "./CreateCardForm";
 import type { FlashcardData } from "../data/flashcards";
 
 export type AllCardsListItem = FlashcardData & {
@@ -14,6 +15,7 @@ export type AllCardsListItem = FlashcardData & {
 type AllCardsListProps = {
   flashcards: AllCardsListItem[];
   onDeleteCard: (id: string) => void;
+  onUpdateCard: (id: string, values: CreateCardFormValues) => void;
 };
 
 function IconImage({ src }: Readonly<{ src: string }>) {
@@ -29,7 +31,11 @@ function IconImage({ src }: Readonly<{ src: string }>) {
   );
 }
 
-export function AllCardsList({ flashcards, onDeleteCard }: AllCardsListProps) {
+export function AllCardsList({
+  flashcards,
+  onDeleteCard,
+  onUpdateCard,
+}: AllCardsListProps) {
   return (
     <section aria-label="All flashcards" className="mt-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -62,6 +68,9 @@ export function AllCardsList({ flashcards, onDeleteCard }: AllCardsListProps) {
             menuLabel={`Options for ${flashcard.question}`}
             onDelete={() => {
               onDeleteCard(flashcard.id);
+            }}
+            onUpdate={(values) => {
+              onUpdateCard(flashcard.id, values);
             }}
             progressMax={5}
             progressValue={flashcard.progressValue}
