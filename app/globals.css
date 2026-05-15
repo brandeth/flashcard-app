@@ -61,6 +61,14 @@
     font-weight: 600;
   }
 
+  .text-preset-4-regular {
+    font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    line-height: 1.2;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+
   .text-preset-5 {
     font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
     font-size: 0.875rem;

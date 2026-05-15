@@ -9,6 +9,7 @@ import {
   type SetStateAction,
 } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "./Button";
 import { CategoryDropdown } from "./CategoryDropdown";
 import { Checkbox } from "./Checkbox";
@@ -98,6 +99,18 @@ function shuffleIndexes(indexes: number[]) {
   return shuffled;
 }
 
+function EmptyStudyState({
+  children,
+}: Readonly<{
+  children: ReactNode;
+}>) {
+  return (
+    <div className="flex w-full flex-1 items-center justify-center px-4 py-16 text-center sm:px-6">
+      <div className="flex max-w-[42rem] flex-col items-center">{children}</div>
+    </div>
+  );
+}
+
 export function FlashcardSection({
   category = "Web Development",
   question = "What does HTML stand for?",
@@ -114,7 +127,7 @@ export function FlashcardSection({
 }: FlashcardSectionProps) {
   const cards = useMemo<FlashcardSectionCard[]>(
     () =>
-      flashcards && flashcards.length > 0
+      flashcards !== undefined
         ? flashcards
         : [
             {
@@ -208,6 +221,15 @@ export function FlashcardSection({
   );
   const activeCard = visibleCards[effectiveVisibleIndex];
   const activeSourceIndex = activeCard?.sourceIndex ?? 0;
+  const hasCards = cards.length > 0;
+  const allCardsMastered =
+    hasCards &&
+    cards.every((card, index) => {
+      const cardProgressMax = getProgressMax(card, progressMax);
+      const cardProgressValue = activeCardProgressValues[index] ?? 0;
+
+      return cardProgressValue >= cardProgressMax;
+    });
   const activeProgressMax = activeCard
     ? getProgressMax(activeCard, progressMax)
     : progressMax;
@@ -219,6 +241,7 @@ export function FlashcardSection({
   const hasPreviousCard = effectiveVisibleIndex > 0;
   const hasNextCard = effectiveVisibleIndex < visibleCards.length - 1;
   const isMastered = currentProgress >= activeProgressMax;
+  const isCaughtUp = hideMastered && allCardsMastered;
   const categoryLabel =
     selectedCategories.size === 0
       ? "All Categories"
@@ -302,75 +325,116 @@ export function FlashcardSection({
         </Button>
       </header>
 
-      <div className="flex flex-1 flex-col items-center gap-4 border-b border-brand-neutral-900 px-4 py-4 sm:px-5 md:px-6">
+      <div
+        className={[
+          "flex flex-1 flex-col items-center gap-4 px-4 py-4 sm:px-5 md:px-6",
+          activeCard ? "border-b border-brand-neutral-900" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
         {activeCard ? (
-          <FlashcardContent
-            key={activeSourceIndex}
-            answer={activeCard.answer}
-            category={activeCard.category}
-            progressMax={activeProgressMax}
-            progressValue={currentProgress}
-            question={activeCard.question}
-            className="min-h-[306px] flex-1 max-w-none p-5"
-          />
-        ) : (
-          <div className="flex min-h-[306px] w-full flex-1 items-center justify-center rounded-2xl border border-brand-neutral-900 bg-brand-neutral-0 p-5 text-center shadow-[2px_2px_0_0_var(--color-brand-neutral-900)]">
+          <>
+            <FlashcardContent
+              key={activeSourceIndex}
+              answer={activeCard.answer}
+              category={activeCard.category}
+              progressMax={activeProgressMax}
+              progressValue={currentProgress}
+              question={activeCard.question}
+              className="min-h-[306px] flex-1 max-w-none p-5"
+            />
+
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Button
+                disabled={isMastered}
+                iconLeft={
+                  <IconImage
+                    src={
+                      isMastered
+                        ? "/assets/check-circle.svg"
+                        : "/assets/check.svg"
+                    }
+                  />
+                }
+                onClick={handleKnowThis}
+                className="min-h-10 px-4 py-2"
+              >
+                {isMastered ? "Already Mastered" : "I Know This"}
+              </Button>
+              <Button
+                variant="secondary"
+                iconLeft={<IconImage src="/assets/undo-alt.svg" />}
+                onClick={handleResetProgress}
+                className="min-h-10 px-4 py-2"
+              >
+                Reset Progress
+              </Button>
+            </div>
+          </>
+        ) : isCaughtUp ? (
+          <EmptyStudyState>
+            <h2 className="text-preset-2 text-brand-neutral-900">
+              You&apos;re all caught up!
+            </h2>
+            <p className="mt-3 max-w-[38rem] text-preset-4-regular text-brand-neutral-600">
+              All your cards are mastered. Turn off &ldquo;Hide Mastered&rdquo;
+              <br />
+              see them again.
+            </p>
+          </EmptyStudyState>
+        ) : hasCards ? (
+          <EmptyStudyState>
             <p className="text-preset-4 text-brand-neutral-600">
               No cards match the current filters.
             </p>
-          </div>
+          </EmptyStudyState>
+        ) : (
+          <EmptyStudyState>
+            <h2 className="text-preset-2 text-brand-neutral-900">
+              No cards to study
+            </h2>
+            <p className="mt-3 max-w-[420px] text-preset-4 text-brand-neutral-600">
+              You don&apos;t have any cards yet. Add your first card in the All
+              Cards tab.
+            </p>
+            <Link
+              href="/all-cards"
+              className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full border border-brand-neutral-900 bg-brand-neutral-0 px-5 py-3 text-preset-4 leading-none text-brand-neutral-900 shadow-[2px_2px_0_0_var(--color-brand-neutral-900)] transition-[background-color,box-shadow,outline-color] duration-150 ease-in-out hover:bg-brand-neutral-100 hover:shadow-[3px_3px_0_0_var(--color-brand-neutral-900)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue-600"
+            >
+              Go to All Cards
+            </Link>
+          </EmptyStudyState>
         )}
-
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <Button
-            disabled={!activeCard || isMastered}
-            iconLeft={
-              <IconImage
-                src={isMastered ? "/assets/check-circle.svg" : "/assets/check.svg"}
-              />
-            }
-            onClick={handleKnowThis}
-            className="min-h-10 px-4 py-2"
-          >
-            {isMastered ? "Already Mastered" : "I Know This"}
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={!activeCard}
-            iconLeft={<IconImage src="/assets/undo-alt.svg" />}
-            onClick={handleResetProgress}
-            className="min-h-10 px-4 py-2"
-          >
-            Reset Progress
-          </Button>
-        </div>
       </div>
 
-      <footer className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-4 sm:px-5 md:px-6">
-        <Button
-          variant="outline"
-          disabled={!hasPreviousCard}
-          iconLeft={<IconImage src="/assets/angle-left.svg" />}
-          onClick={handlePreviousCard}
-          className="min-h-10 px-4 py-2"
-        >
-          Previous
-        </Button>
+      {activeCard ? (
+        <footer className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-4 sm:px-5 md:px-6">
+          <Button
+            variant="outline"
+            disabled={!hasPreviousCard}
+            iconLeft={<IconImage src="/assets/angle-left.svg" />}
+            onClick={handlePreviousCard}
+            className="min-h-10 px-4 py-2"
+          >
+            Previous
+          </Button>
 
-        <p className="text-center text-preset-5 text-brand-neutral-600">
-          Card {currentCardNumber} of {totalCardCount}
-        </p>
+          <p className="text-center text-preset-5 text-brand-neutral-600">
+            Card {currentCardNumber} of {totalCardCount}
+          </p>
 
-        <Button
-          variant="outline"
-          disabled={!hasNextCard}
-          iconRight={<IconImage src="/assets/angle-right.svg" />}
-          onClick={handleNextCard}
-          className="min-h-10 px-4 py-2"
-        >
-          Next
-        </Button>
-      </footer>
+          <Button
+            variant="outline"
+            disabled={!hasNextCard}
+            iconRight={<IconImage src="/assets/angle-right.svg" />}
+            onClick={handleNextCard}
+            className="min-h-10 px-4 py-2"
+          >
+            Next
+          </Button>
+        </footer>
+      ) : null}
     </section>
   );
 }
