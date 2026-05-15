@@ -76,6 +76,7 @@ export function AllCardsManager() {
     setFlashcards((currentFlashcards) =>
       currentFlashcards.filter((flashcard) => flashcard.id !== id),
     );
+    showToast("Card deleted.");
   }
 
   function handleUpdateCard(id: string, values: CreateCardFormValues) {
