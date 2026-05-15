@@ -37,7 +37,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     secondary: `border-0 bg-brand-neutral-0 text-brand-neutral-900 ${raisedButtonStateClasses}`,
     outline: outlineButtonStateClasses,
     "base-primary": `border border-brand-neutral-900 bg-brand-yellow-500 text-brand-neutral-900 hover:not-disabled:bg-brand-yellow-500/75 ${baseButtonStateClasses}`,
-    "base-secondary": `border border-transparent bg-brand-neutral-0 text-brand-neutral-900 hover:not-disabled:border-brand-neutral-900 ${baseButtonStateClasses}`,
+    "base-secondary": `border border-transparent bg-brand-neutral-0 text-brand-neutral-900 hover:not-disabled:border-brand-neutral-900 focus-visible:border-brand-neutral-900 ${baseButtonStateClasses}`,
   } satisfies Record<ButtonVariant, string>;
   const hidesIcons = variant.startsWith("base-");
 
